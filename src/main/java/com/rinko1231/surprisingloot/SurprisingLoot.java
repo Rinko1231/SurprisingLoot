@@ -19,8 +19,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecartContainer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
@@ -48,7 +51,6 @@ public class SurprisingLoot {
     private static final String NBT_KEY_PLAYERS = "SurprisingLootTriggered";
 
 
-
     public SurprisingLoot() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
         SurprisingLootConfig.setup();
@@ -59,17 +61,10 @@ public class SurprisingLoot {
         MinecraftForge.EVENT_BUS.addListener(this::onContainerClose);
     }
 
-    private void onCommonSetup(FMLCommonSetupEvent event) {
-    }
-
-    @SubscribeEvent
-    public void onAddReloadListener(AddReloadListenerEvent event) {
-        event.addListener(SurprisingLootReloadListener.INSTANCE);
-    }
-
     private static ResourceLocation getLootTableSafe(RandomizableContainerBlockEntity be) {
         return ((AccessorRandomizableContainerBE) be).getLootTable();
     }
+
     private static ResourceLocation getLootTableSafe(AbstractMinecartContainer cart) {
         return ((AccessorAbstractMinecartContainer) cart).surprisingloot$getLootTable();
     }
@@ -87,7 +82,13 @@ public class SurprisingLoot {
         tag.put(NBT_KEY_PLAYERS, list);
     }
 
+    private void onCommonSetup(FMLCommonSetupEvent event) {
+    }
 
+    @SubscribeEvent
+    public void onAddReloadListener(AddReloadListenerEvent event) {
+        event.addListener(SurprisingLootReloadListener.INSTANCE);
+    }
 
     private void triggerSpawnsForLoot(Level level,
                                       ResourceLocation lootTable,
@@ -128,6 +129,7 @@ public class SurprisingLoot {
         markTriggered(tag, player.getUUID());
     }
 
+
     /**
      * 玩家右键容器记录坐标
      **/
@@ -137,13 +139,18 @@ public class SurprisingLoot {
 
         BlockPos pos = event.getPos();
         BlockEntity be = level.getBlockEntity(pos);
+
         if (!(be instanceof RandomizableContainerBlockEntity container)) return;
-        /*
-        if (event.getEntity() instanceof ServerPlayer player1)
-            player1.displayClientMessage(Component.literal("be"),false);
-        */
+
+        // 如果是箱子（或其子类），并且被阻塞（上方有方块/猫），就不记录上下文
+        if (container instanceof ChestBlockEntity) {
+            if (ChestBlock.isChestBlockedAt(level, pos)) {
+                return;
+            }
+        }
+
         ResourceLocation lootTable = getLootTableSafe(container);
-        //event.getEntity().displayClientMessage(Component.literal(lootTable.toString()),false);
+
         if (lootTable == null) return;
 
         PLAYER_CONTAINER_MAP.put(event.getEntity().getUUID(),
@@ -156,10 +163,7 @@ public class SurprisingLoot {
                 )
         );
 
-        /*
-        Component CC = Component.literal( new ContainerContext(level.dimension(), pos, lootTable).toString());
-        event.getEntity().displayClientMessage(CC,false);
-        */
+
     }
 
     /**
@@ -232,11 +236,6 @@ public class SurprisingLoot {
         }
     }
 
-    public record ContainerContext(ResourceKey<Level> dimension, BlockPos pos, ResourceLocation lootTable, long time, BlockPos playerPos) { }
-
-    public record CartContext(ResourceKey<Level> dimension, UUID cartUUID, ResourceLocation lootTable, long time, BlockPos playerPos) { }
-
-
     public void onContainerClose(PlayerContainerEvent.Close event) {
         UUID uuid = event.getEntity().getUUID();
         PLAYER_CONTAINER_MAP.remove(uuid); // 方块容器
@@ -261,6 +260,13 @@ public class SurprisingLoot {
                         event.getEntity().blockPosition()));
     }
 
+    public record ContainerContext(ResourceKey<Level> dimension, BlockPos pos, ResourceLocation lootTable, long time,
+                                   BlockPos playerPos) {
+    }
+
+    public record CartContext(ResourceKey<Level> dimension, UUID cartUUID, ResourceLocation lootTable, long time,
+                              BlockPos playerPos) {
+    }
 
 
 }
