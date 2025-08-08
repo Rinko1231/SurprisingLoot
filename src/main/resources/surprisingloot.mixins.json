@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "surprisingloot.refmap.json",
   "mixins": [
+    "AccessorAbstractMinecartContainer",
     "AccessorRandomizableContainerBE"
   ],
   "injectors": {

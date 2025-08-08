@@ -157,7 +157,7 @@ dependencies {
     implementation fg.deobf("curse.maven:curios-309927:6418456")
     implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     runtimeOnly fg.deobf("curse.maven:better-combat-by-daedelus-639842:5625757")
-    implementation fg.deobf("curse.maven:lootr-361276:6330326")
+    implementation fg.deobf("curse.maven:locks-unofficial-1128357:6115787")
     //runtimeOnly fg.deobf("curse.maven:new-shield-variants-884272:5747547")
     //runtimeOnly fg.deobf("curse.maven:monolib-968432:5443121")
     //implementation fg.deobf("curse.maven:blue-skies-312918:5010316")
