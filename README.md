@@ -3,7 +3,7 @@
 **English**  
 **Surprising Loot** is a highly configurable mod that brings unexpected encounters to adventurers!  
 When a player first opens a container tied to a specific loot table, there is a configurable chance to **spawn monsters** nearby, making treasure hunts far more thrilling.  
-Supports both vanilla and custom loot tables, and is fully **compatible with [Lootr](https://www.curseforge.com/minecraft/mc-mods/lootr)**.  
+Supports both vanilla and modded loot chests, and is **compatible with [Lootr](https://www.curseforge.com/minecraft/mc-mods/lootr)**.  
 
 You can create datapacks to define your own surprise events. An example datapack is included in  
 `data/surprisingloot/loot_events/example.json`:
